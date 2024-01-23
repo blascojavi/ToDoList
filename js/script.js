@@ -1,87 +1,86 @@
-// Tomamos los elementos
-var inputTarea = document.getElementById("tarea");
-var btn = document.getElementById("agregar");
-var listado = document.getElementById("listado");
-var cantidad = document.getElementById("cantidad");
+const todoInputText = document.getElementById("todo-input-text");
+const btnAddEditTodo = document.getElementById("btn-add-todo");
+const todoUlList = document.getElementById("todo-ul-list");
+const todoQuantity = document.getElementById("todo-quantity");
 
-// Variable que lleva la cantidad de tareas
-var total = 0;
+let total = 0;
 
-var tareaEditando = null; // Variable para almacenar la tarea que se está editando
+let tareaEditando = null;
+let todoList = [];
+let userIsEditing = null;
 
-// Función para agregar tarea
-function agregarTarea() {
-    // Controlamos si el campo es vacío
-    if (inputTarea.value == "") {
-        return;
-    }
-
-    // Si hay una tarea en edición, actualizamos su texto
-    if (tareaEditando) {
-        tareaEditando.textContent = inputTarea.value;
-        crearBotones();
-        tareaEditando = null; // Limpiamos la tarea en edición
-    } else {
-        // Tomamos el valor del campo
-        var elemento = inputTarea.value;
-        var li = document.createElement("li");
-        li.textContent = elemento;
-        // Agregamos li al listado
-        listado.appendChild(li);
-
-        // Incrementamos la cantidad de tareas
-        total++;
-        cantidad.innerHTML = total;
-
-        // Agregamos boton editar a cada elemento de Li
-        var btnEditar = document.createElement("edit");
-        btnEditar.textContent = "Editar";
-        li.appendChild(btnEditar);
-
-        // Agregamos el botón eliminar a cada elemento Li
-        var btnEliminar = document.createElement("span");
-        btnEliminar.textContent = "x";
-        li.appendChild(btnEliminar);
-
-        // Agregamos la funcionalidad que elimina la tarea del listado
-        btnEliminar.onclick = function () {
-            li.remove();
-            total--;
-            cantidad.innerHTML = total;
-        }
-
-        //Agregamos la funcionalidad que edita la tarea del listado
-        btnEditar.onclick = function () {
-            // Al hacer clic en editar, cargamos el texto de la tarea en el input
-            inputTarea.value = li.textContent;
-            // Marcamos la tarea actual como la tarea en edición
-            tareaEditando = li;
-        }
-    }
-
-    // Limpiamos el campo input
-    inputTarea.value = "";
+function resetTodoList() {
+    todoUlList.innerHTML = ''
 }
 
-//Funcion crear botones de editar y eliminar
-function crearBotones(){
-     // Agregamos boton editar a cada elemento de Li
-     var btnEditar = document.createElement("edit");
-     btnEditar.textContent = "Editar";
-     li.appendChild(btnEditar);
-
-     // Agregamos el botón eliminar a cada elemento Li
-     var btnEliminar = document.createElement("span");
-     btnEliminar.textContent = "x";
-     li.appendChild(btnEliminar);
+const createTodoButton = (text, id, onClick) => {
+    const btnEditTodo = document.createElement("button");
+    btnEditTodo.innerText = text;
+    btnEditTodo.onclick = () => onClick(id)
+    return btnEditTodo
 }
 
-// Asociamos la función al evento clic del botón y al evento keypress del campo de entrada
-btn.onclick = agregarTarea;
 
-inputTarea.addEventListener("keypress", function (event) {
-    // Verificamos si la tecla presionada es Enter
+const onClickDeleteTodo = (id) => {
+    const newTodoList = todoList.filter(todo => todo.id !== id);
+    todoList = newTodoList
+    renderTodos()
+}
+
+const onClickEditButton = (id) => {
+    const todoToEdit = todoList.find(todo => todo.id === id);
+    todoInputText.value = todoToEdit.text;
+    userIsEditing = todoToEdit.id;
+}
+
+const editTodo = () => {
+    const todoToEdit = todoList.find(todo => todo.id === userIsEditing);
+    todoToEdit.text = todoInputText.value
+    userIsEditing = null
+    renderTodos()
+}
+
+function renderTodos() {
+    resetTodoList()
+    const AllTodos = todoList.map(todo => {
+        const li = document.createElement("li");
+        li.textContent = todo.text;
+        li.id = todo.id;
+        const editButton = createTodoButton("Editar", todo.id, onClickEditButton)
+        const deleteButton = createTodoButton("Borrar", todo.id, onClickDeleteTodo)
+        li.appendChild(editButton);
+        li.appendChild(deleteButton);
+        return li;
+    })
+    AllTodos.forEach(todo => {
+        todoUlList.appendChild(todo);
+    })  
+}
+
+function addTodo() {
+   const newTodoText = todoInputText.value;
+   const newTodoId = `${new Date().getTime()}${Math.random()}`;
+   const newTodo = {
+    text: newTodoText,
+    id: newTodoId
+   }
+   todoList.push(newTodo)
+   renderTodos()
+}
+
+const onClickBtnAddEditTodo = () => {
+    if (userIsEditing) {
+        return editTodo()
+    }
+    if (!userIsEditing) {
+        return addTodo()
+    }
+}
+
+btnAddEditTodo.onclick = onClickBtnAddEditTodo;
+
+todoInputText.addEventListener("keypress", function (event) {
     if (event.key === "Enter") {
-        agregarTarea();
+        addTodo();
     }
 });
