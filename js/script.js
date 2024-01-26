@@ -11,6 +11,7 @@ let userIsEditing = null;
 
 function resetTodoList() {
     todoUlList.innerHTML = ''
+    btnAddEditTodo.innerText = "Agregar";
 }
 
 const createTodoButton = (text, id, onClick) => {
@@ -31,6 +32,7 @@ const onClickEditButton = (id) => {
     const todoToEdit = todoList.find(todo => todo.id === id);
     todoInputText.value = todoToEdit.text;
     userIsEditing = todoToEdit.id;
+    btnAddEditTodo.innerText = "Modificar";
 }
 
 const editTodo = () => {
@@ -38,6 +40,7 @@ const editTodo = () => {
     todoToEdit.text = todoInputText.value
     userIsEditing = null
     renderTodos()
+    todoInputText.value =null
 }
 
 function renderTodos() {
@@ -51,6 +54,7 @@ function renderTodos() {
         li.appendChild(editButton);
         li.appendChild(deleteButton);
         return li;
+       
     })
     AllTodos.forEach(todo => {
         todoUlList.appendChild(todo);
@@ -58,6 +62,9 @@ function renderTodos() {
 }
 
 function addTodo() {
+    if (todoInputText.value == "") {
+        return;
+    }
    const newTodoText = todoInputText.value;
    const newTodoId = `${new Date().getTime()}${Math.random()}`;
    const newTodo = {
@@ -66,20 +73,28 @@ function addTodo() {
    }
    todoList.push(newTodo)
    renderTodos()
+   todoInputText.value =null
+   //btnAddEditTodo.innerText = "Agregar";
 }
 
 const onClickBtnAddEditTodo = () => {
-    if (userIsEditing) {
-        return editTodo()
-    }
-    if (!userIsEditing) {
-        return addTodo()
-    }
+        if (userIsEditing) {
+            return editTodo()
+           // btnAddEditTodo.innerText = "Agregar";
+        }
+        if (!userIsEditing) {
+            return addTodo()
+           // btnAddEditTodo.innerText = "Agregar";
+        }
 }
 
 btnAddEditTodo.onclick = onClickBtnAddEditTodo;
 
 todoInputText.addEventListener("keypress", function (event) {
+    if (btnAddEditTodo.innerText == "Modificar"){
+        console.log(btnAddEditTodo.innerText)
+        return
+    }
     if (event.key === "Enter") {
         addTodo();
     }
