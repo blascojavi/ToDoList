@@ -74,17 +74,14 @@ function addTodo() {
    todoList.push(newTodo)
    renderTodos()
    todoInputText.value =null
-   //btnAddEditTodo.innerText = "Agregar";
 }
 
 const onClickBtnAddEditTodo = () => {
         if (userIsEditing) {
             return editTodo()
-           // btnAddEditTodo.innerText = "Agregar";
         }
         if (!userIsEditing) {
             return addTodo()
-           // btnAddEditTodo.innerText = "Agregar";
         }
 }
 
